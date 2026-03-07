@@ -30,7 +30,7 @@ if not st.session_state.profile_setup_complete:
     with st.container(border=True):
         target_score = st.selectbox(
             "【目標スコア（基準となる戦略）】",
-            ["100切り（ボギーペース＋α）", "90切り（ボギーペース死守）", "80切り（全ホールパー狙い・ボギー枠8つ）"]
+            ["100切り", "90切り", "80切り"]
         )
 
         driver_dist = st.slider(
