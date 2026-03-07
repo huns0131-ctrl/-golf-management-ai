@@ -5,7 +5,7 @@ import google.generativeai as genai
 st.set_page_config(page_title="コースマネージメント・コンシェルジュ", page_icon="⛳️")
 
 st.title("⛳️ コースマネージメント・コンシェルジュ")
-st.caption("Antigravity（アンチグラビティ）のこれまでの経験と、PGAツアーのデータに基づいた、論理的なコース攻略アドバイスをお届けします。")
+st.caption("PGAツアーのデータに基づいた、論理的なコース攻略アドバイスをお届けします。")
 
 # ==========================================
 # 1. APIキーの設定 (Streamlit CloudのSecretsから取得)
@@ -16,40 +16,47 @@ else:
     st.error("⚠️ APIキーが設定されていません。StreamlitのSettings > Secrets に 'GEMINI_API_KEY' を設定してください。")
     st.stop()
 
+# セッション状態の初期化
+if "profile_setup_complete" not in st.session_state:
+    st.session_state.profile_setup_complete = False
+
 # ==========================================
-# 1.5 サイドバー（プロフィール設定）の構築
+# 1.5 プロフィール設定画面（初回のみ表示）
 # ==========================================
-st.sidebar.header("▼ あなたのゴルフプロフィールを教えてください")
-st.sidebar.caption("設定したプロフィールはAIに記憶され、最適なアドバイスの基準となります。")
+if not st.session_state.profile_setup_complete:
+    st.markdown("### 📋 まずはあなたのゴルフプロフィールを教えてください")
+    st.caption("設定したプロフィールはAIに記憶され、あなた専用の最適なアドバイスの基準となります。")
+    
+    with st.container(border=True):
+        target_score = st.selectbox(
+            "【目標スコア（基準となる戦略）】",
+            ["100切り（ボギーペース＋α）", "90切り（ボギーペース死守）", "80切り（全ホールパー狙い・ボギー枠8つ）"]
+        )
 
-target_score = st.sidebar.selectbox(
-    "【目標スコア（基準となる戦略）】",
-    ["100切り（ボギーペース＋α）", "90切り（ボギーペース死守）", "80切り（全ホールパー狙い・ボギー枠8つ）"]
-)
+        driver_dist = st.slider(
+            "【ドライバーの平均飛距離（※最大飛距離ではなく）】",
+            min_value=150, max_value=300, value=220, step=5, format="%d yd"
+        )
 
-driver_dist = st.sidebar.slider(
-    "【ドライバーの平均飛距離（※最大飛距離ではなく）】",
-    min_value=150, max_value=300, value=220, step=5, format="%d yd"
-)
+        iron_dist = st.slider(
+            "【アイアン（7I）の平均飛距離】",
+            min_value=100, max_value=200, value=140, step=5, format="%d yd"
+        )
 
-iron_dist = st.sidebar.slider(
-    "【アイアン（7I）の平均飛距離】",
-    min_value=100, max_value=200, value=140, step=5, format="%d yd"
-)
+        shot_shape = st.selectbox(
+            "【持ち球（ディスパーションの傾向）】",
+            ["スライス系（右へのミスが多い）", "フック系（左へのミスが多い）", "ストレート系"]
+        )
 
-shot_shape = st.sidebar.selectbox(
-    "【持ち球（ディスパーションの傾向）】",
-    ["スライス系（右へのミスが多い）", "フック系（左へのミスが多い）", "ストレート系"]
-)
-
-weakness = st.sidebar.text_area(
-    "【絶対に避けたい苦手なこと（オプション）】",
-    placeholder="例：アゴの高いバンカー、左足下がり、池越え など",
-    height=80
-)
-
-# ユーザープロフィールを文字列としてまとめる
-user_profile_text = f"""
+        weakness = st.text_area(
+            "【絶対に避けたい苦手なこと（オプション）】",
+            placeholder="例：アゴの高いバンカー、左足下がり、池越え など",
+            height=80
+        )
+        
+        if st.button("⛳️ この設定でコンシェルジュに相談を始める", type="primary", use_container_width=True):
+            # ユーザープロフィールを文字列としてセッションに保存
+            st.session_state.user_profile_text = f"""
 ## 現在のユーザーのプロフィール情報
 以下の情報を【大前提】として、アドバイスを組み立ててください。
 - 目標スコア: {target_score}
@@ -58,11 +65,22 @@ user_profile_text = f"""
 - 持ち球の傾向: {shot_shape}
 - 苦手な状況・避けたいこと: {weakness if weakness else "特になし"}
 """
+            st.session_state.profile_setup_complete = True
+            st.rerun()
 
 # ==========================================
-# 2. システムプロンプトの設定
+# 2. メインチャット画面（設定完了後に表示）
 # ==========================================
-BASE_SYSTEM_PROMPT = """
+else:
+    # --- サイドバーに「設定を変更する」ボタンを配置 ---
+    st.sidebar.markdown("### 👤 現在のプロフィール設定")
+    st.sidebar.caption("※設定した条件を元にアドバイスを行っています。")
+    if st.sidebar.button("⚙️ プロフィールを再設定する"):
+        st.session_state.profile_setup_complete = False
+        st.rerun()
+
+    # システムプロンプトの設定
+    BASE_SYSTEM_PROMPT = """
 あなたはゴルフの「コースマネージメント・コンシェルジュ」です。
 ユーザーから提供された資料と、統計データ（PGA/NCAA等の客観的数値）に基づき、論理的かつ具体的なコースマネージメントのアドバイスを行います。
 
@@ -134,64 +152,63 @@ BASE_SYSTEM_PROMPT = """
 - 持ち球（ドロー/フェード）でボギー枠を配分。
 """
 
-# プロフィール情報を埋め込んだ最終的なシステムプロンプト
-FINAL_SYSTEM_PROMPT = BASE_SYSTEM_PROMPT.replace("{profile_injection}", user_profile_text)
+    # プロフィール情報を埋め込んだ最終的なシステムプロンプト
+    FINAL_SYSTEM_PROMPT = BASE_SYSTEM_PROMPT.replace("{profile_injection}", st.session_state.user_profile_text)
 
-# ==========================================
-# 3. モデルの初期化
-# ==========================================
-# サイドバーの設定が変更されるたびにプロンプトを最新化するため、関数化または直接初期化
-model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash", 
-    system_instruction=FINAL_SYSTEM_PROMPT
-)
+    # ==========================================
+    # 3. モデルの初期化
+    # ==========================================
+    # プロンプトを最新化してモデルを初期化
+    model = genai.GenerativeModel(
+        model_name="gemini-2.5-flash", 
+        system_instruction=FINAL_SYSTEM_PROMPT
+    )
 
-# セッション状態の初期化（チャット履歴の保持用）
-if "chat_session" not in st.session_state:
-    st.session_state.chat_session = model.start_chat(history=[])
-# プロンプト（プロフィール）が変更された場合はチャットセッションを作り直す（過去の文脈を引き継ぎつつ設定を反映するのが難しいため、設定変更時は原則クリア推奨だが、今回は簡易的に最新のmodelオブジェクトを使用）
-else:
-     # システムプロンプトの変更を適用するため、新しい設定でチャットセッションを再作成（履歴は維持）
-     st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
+    # セッション状態の初期化（チャット履歴の保持用）
+    if "chat_session" not in st.session_state:
+        st.session_state.chat_session = model.start_chat(history=[])
+    else:
+         # システムプロンプトの変更を適用するため、新しい設定でチャットセッションを再作成（履歴は維持）
+         st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-# ==========================================
-# 4. UIの描画と会話ロジック
-# ==========================================
-# 過去のメッセージを表示
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+    # ==========================================
+    # 4. UIの描画と会話ロジック
+    # ==========================================
+    # 過去のメッセージを表示
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-# ユーザーからの入力
-if prompt := st.chat_input("例：Par5の攻め方はどうすればいいですか？"):
-    
-    # 入力内容を画面に表示
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    # 履歴に保存
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Geminiへのリクエスト送信
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
+    # ユーザーからの入力
+    if prompt := st.chat_input("例：Par5の攻め方はどうすればいいですか？"):
         
-        try:
-            # ストリーミング（文字が順番にパラパラ表示される）で取得
-            response = st.session_state.chat_session.send_message(prompt, stream=True)
+        # 入力内容を画面に表示
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        # 履歴に保存
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        # Geminiへのリクエスト送信
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
             
-            full_response = ""
-            for chunk in response:
-                full_response += chunk.text
-                message_placeholder.markdown(full_response + "▌") # 打っている感を出すカーソル
-            
-            # カーソルを消して最終結果を表示
-            message_placeholder.markdown(full_response)
-            
-            # アシスタントの返答を履歴に保存
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-            
-        except Exception as e:
-            st.error(f"エラーが発生しました: {e}")
+            try:
+                # ストリーミング（文字が順番にパラパラ表示される）で取得
+                response = st.session_state.chat_session.send_message(prompt, stream=True)
+                
+                full_response = ""
+                for chunk in response:
+                    full_response += chunk.text
+                    message_placeholder.markdown(full_response + "▌") # 打っている感を出すカーソル
+                
+                # カーソルを消して最終結果を表示
+                message_placeholder.markdown(full_response)
+                
+                # アシスタントの返答を履歴に保存
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                
+            except Exception as e:
+                st.error(f"エラーが発生しました: {e}")
