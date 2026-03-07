@@ -12,9 +12,9 @@ st.markdown("""
    プレミアム・ゴルフデザイン (Premium Golf Theme)
    ================================== */
 
-/* --- アプリ全体の背景（高級感のある微グラデーション） --- */
+/* --- アプリ全体の背景（ゴルフ場を思わせる上質な淡いグリーン） --- */
 .stApp {
-    background: linear-gradient(135deg, #f8f9fa 0%, #eef0f2 100%) !important;
+    background: linear-gradient(135deg, #ebf5ee 0%, #d1e8d8 100%) !important;
 }
 
 /* --- 全体フォントと文字色の洗練 --- */
