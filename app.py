@@ -131,7 +131,7 @@ if "profile_setup_complete" not in st.session_state:
 # 1.5 プロフィール設定画面（初回のみ表示）
 # ==========================================
 if not st.session_state.profile_setup_complete:
-    st.markdown("### 📋 まずはあなたのゴルフプロフィールを教えてください")
+    st.markdown("### 📋 まずはあなたの現状を教えてください")
     st.caption("設定したプロフィールはAIに記憶され、あなた専用の最適なアドバイスの基準となります。")
     
     with st.container(border=True):
