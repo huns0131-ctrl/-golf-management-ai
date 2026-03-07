@@ -97,7 +97,8 @@ div[data-testid="stChatInput"] {
 # ページ設定
 st.set_page_config(page_title="コースマネージメント・コンシェルジュ", page_icon="⛳️")
 
-st.title("⛳️ コースマネージメント・コンシェルジュ")
+# タイトルと説明
+st.markdown("<h1 style='font-size: 2.2rem; line-height: 1.3;'>コースマネージメント<br>コンシェルジュ</h1>", unsafe_allow_html=True)
 st.caption("PGAツアーのデータに基づいた、論理的なコース攻略アドバイスをお届けします。")
 
 # ==========================================
