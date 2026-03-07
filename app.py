@@ -1,6 +1,99 @@
 import streamlit as st
 import google.generativeai as genai
 
+# ==========================================
+# 0. カスタムCSSの注入（スマホ用デザイン最適化）
+# ==========================================
+st.markdown("""
+<style>
+/* ==================================
+   プレミアム・ゴルフデザイン (Premium Golf Theme)
+   ================================== */
+
+/* --- 全体フォントと文字色の洗練 --- */
+html, body, [class*="css"] {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    color: #2c3e50 !important; /* 真っ黒ではなく高級感のある濃いグレー */
+}
+
+/* タイトル・見出しの品格アップ */
+h1, h2, h3 {
+    color: #1a252f !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* --- メインボタン（マスターズ・グリーン） --- */
+/* Streamlitのプライマリーボタンを上書き */
+button[kind="primary"] {
+    background-color: #1B4D3E !important; /* 深い緑 */
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+    font-weight: bold !important;
+    padding: 0.75rem 1rem !important; /* ボタンに厚みを持たせる */
+}
+button[kind="primary"]:hover {
+    background-color: #13382D !important; /* ホバーでさらに深く */
+    box-shadow: 0 6px 12px rgba(27,77,62,0.3) !important; /* 緑がかった影 */
+    transform: translateY(-2px) !important; /* 少し浮き上がる */
+}
+button[kind="primary"]:active {
+    transform: translateY(0) !important;
+}
+
+/* --- プロフィール設定枠（カードUI化） --- */
+/* ボーダーで囲まれたコンテナをカードのように浮かせる */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    border: 1px solid #eef0f2 !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.02) !important;
+    padding: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* --- チャット入力欄の洗練 --- */
+div[data-testid="stChatInput"] {
+    border-radius: 20px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+
+/* ==================================
+   スマホ向けのレイアウト調整
+   ================================== */
+@media (max-width: 768px) {
+    /* 全体的な左右の余白を詰める */
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 2rem !important;
+    }
+    
+    /* 見出しフォーマットをスマホ用に縮小 */
+    [data-testid="stChatMessage"] h1 { font-size: 1.25rem !important; margin-top: 1rem !important; margin-bottom: 0.5rem !important; }
+    [data-testid="stChatMessage"] h2 { font-size: 1.1rem !important; margin-top: 0.8rem !important; margin-bottom: 0.5rem !important; }
+    [data-testid="stChatMessage"] h3 { font-size: 1rem !important; margin-top: 0.5rem !important; margin-bottom: 0.3rem !important; }
+    
+    /* チャットバブル内の不要な余白を削減 */
+    [data-testid="stChatMessage"] {
+        padding: 0.5rem !important;
+        gap: 0.4rem !important;
+    }
+    
+    /* テキスト行間調整 */
+    [data-testid="stChatMessage"] p {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ページ設定
 st.set_page_config(page_title="コースマネージメント・コンシェルジュ", page_icon="⛳️")
 
