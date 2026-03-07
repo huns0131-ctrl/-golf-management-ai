@@ -8,9 +8,13 @@ st.title("⛳️ コースマネージメントAI")
 st.caption("PGA/NCAAのデータに基づいた、論理的なコース攻略アドバイスをお届けします。")
 
 # ==========================================
-# 1. APIキーの設定 (直接埋め込み版)
+# 1. APIキーの設定 (Streamlit CloudのSecretsから取得)
 # ==========================================
-genai.configure(api_key="AIzaSyCRm8AmrZgxhTd2MeGD8dM_9r2BrV7JfJY")
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("⚠️ APIキーが設定されていません。StreamlitのSettings > Secrets に 'GEMINI_API_KEY' を設定してください。")
+    st.stop()
 
 # ==========================================
 # 2. システムプロンプトの設定
