@@ -9,191 +9,173 @@ import datetime
 st.markdown("""
 <style>
 /* ==================================
-   プレミアム・ゴルフデザイン v2 (Dark Green × Cream)
+   ゴルフアプリ デザイン（薄グリーン背景・視認性重視版）
    ================================== */
 
-/* --- アプリ全体の背景（深みのある落ち着いたダークグリーン） --- */
+/* --- アプリ全体の背景（元のまま） --- */
 .stApp {
-    background: linear-gradient(160deg, #0f2718 0%, #1a3d25 60%, #0d1f12 100%) !important;
+    background: linear-gradient(135deg, #ebf5ee 0%, #d1e8d8 100%) !important;
 }
 
-/* --- 全体フォントと文字色 --- */
+/* --- 全体フォント・文字色（背景に合わせて濃い黒系に統一） --- */
 html, body, [class*="css"] {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-    color: #e8e0d0 !important;
+    color: #1a1a1a !important;
 }
 
 /* --- タイトル・見出し --- */
 h1, h2, h3 {
-    color: #f5edd8 !important;
+    color: #0d2b1a !important;
     font-weight: 700 !important;
     letter-spacing: -0.02em !important;
 }
 
-/* --- サイドバー背景 --- */
-[data-testid="stSidebar"] {
-    background: rgba(10, 30, 15, 0.95) !important;
-    border-right: 1px solid rgba(255,255,255,0.08) !important;
-}
-[data-testid="stSidebar"] * {
-    color: #c8d8b8 !important;
+/* --- キャプション・補足テキスト --- */
+.stCaption, [data-testid="stCaption"], small {
+    color: #3d5c46 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
 }
 
-/* --- メインボタン（ゴールド×ダークグリーン） --- */
+/* --- フォームラベル文字（黒系で視認性を確保） --- */
+label,
+.stSelectbox label,
+.stSlider label,
+.stTextArea label,
+p {
+    color: #1a1a1a !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+}
+
+/* --- セレクトボックスの内部テキスト --- */
+[data-testid="stSelectbox"] > div > div {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid #a8c9b0 !important;
+    border-radius: 10px !important;
+    color: #1a1a1a !important;
+    font-size: 0.95rem !important;
+    min-height: 44px !important;
+}
+
+/* --- テキストエリア --- */
+.stTextArea textarea {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid #a8c9b0 !important;
+    border-radius: 10px !important;
+    color: #1a1a1a !important;
+    font-size: 0.95rem !important;
+}
+.stTextArea textarea::placeholder {
+    color: #7a9e84 !important;
+}
+.stTextArea textarea:focus {
+    border-color: #1B4D3E !important;
+    box-shadow: 0 0 0 2px rgba(27, 77, 62, 0.15) !important;
+}
+
+/* --- スライダー：赤をグリーン系に変更 --- */
+[data-testid="stSlider"] [role="slider"] {
+    background: #1B4D3E !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+/* スライダーの値表示テキスト（赤→濃い緑） */
+[data-testid="stSlider"] * {
+    color: #0d2b1a !important;
+}
+/* スライダーバーの塗り済み部分 */
+[data-testid="stSlider"] > div > div > div > div:first-child {
+    background: #1B4D3E !important;
+}
+
+/* --- メインボタン（深いグリーン） --- */
 button[kind="primary"] {
-    background: linear-gradient(135deg, #c9a84c 0%, #e2c068 100%) !important;
-    color: #1a2e0e !important;
+    background-color: #1B4D3E !important;
+    color: #ffffff !important;
     border-radius: 12px !important;
     border: none !important;
-    box-shadow: 0 4px 15px rgba(201,168,76,0.35) !important;
+    box-shadow: 0 4px 12px rgba(27, 77, 62, 0.3) !important;
     transition: all 0.25s ease !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     font-size: 1rem !important;
-    letter-spacing: 0.01em !important;
-    /* スマホでタップしやすい高さ */
     min-height: 52px !important;
     padding: 0.85rem 1.2rem !important;
 }
 button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #e2c068 0%, #f0d080 100%) !important;
-    box-shadow: 0 6px 20px rgba(201,168,76,0.5) !important;
+    background-color: #13382D !important;
+    box-shadow: 0 6px 18px rgba(27, 77, 62, 0.4) !important;
     transform: translateY(-2px) !important;
 }
 button[kind="primary"]:active {
     transform: translateY(0) !important;
-    box-shadow: 0 2px 8px rgba(201,168,76,0.3) !important;
 }
 
 /* --- セカンダリボタン（サイドバー用） --- */
 button[kind="secondary"] {
-    background: rgba(255,255,255,0.08) !important;
-    color: #c8d8b8 !important;
-    border: 1px solid rgba(200, 216, 184, 0.3) !important;
+    background: rgba(27, 77, 62, 0.1) !important;
+    color: #0d2b1a !important;
+    border: 1px solid rgba(27, 77, 62, 0.35) !important;
     border-radius: 10px !important;
     min-height: 44px !important;
+    font-weight: 600 !important;
     transition: all 0.2s ease !important;
 }
 button[kind="secondary"]:hover {
-    background: rgba(255,255,255,0.14) !important;
-    border-color: rgba(200, 216, 184, 0.6) !important;
+    background: rgba(27, 77, 62, 0.18) !important;
 }
 
 /* --- プロフィール設定カード --- */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.55) !important;
     border-radius: 16px !important;
-    border: 1px solid rgba(201,168,76,0.25) !important;
-    box-shadow:
-        0 8px 32px rgba(0,0,0,0.4),
-        inset 0 1px 0 rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(27, 77, 62, 0.2) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
     padding: 1.25rem 1.1rem !important;
     margin-bottom: 1.5rem !important;
-    backdrop-filter: blur(8px) !important;
-}
-
-/* --- ラベル文字色 --- */
-label, .stSelectbox label, .stSlider label, .stTextArea label {
-    color: #b8ccaa !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.01em !important;
-}
-
-/* --- セレクトボックス・テキストエリアの入力欄 --- */
-[data-testid="stSelectbox"] > div > div,
-.stTextArea textarea {
-    background: rgba(255,255,255,0.07) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    border-radius: 10px !important;
-    color: #f0e8d8 !important;
-    font-size: 0.95rem !important;
-    min-height: 44px !important;
-}
-.stTextArea textarea:focus,
-[data-testid="stSelectbox"] > div > div:focus-within {
-    border-color: rgba(201,168,76,0.6) !important;
-    box-shadow: 0 0 0 2px rgba(201,168,76,0.2) !important;
-}
-.stTextArea textarea::placeholder {
-    color: rgba(200,200,180,0.45) !important;
-}
-
-/* --- スライダー --- */
-[data-testid="stSlider"] .stSlider > div > div > div > div {
-    background: linear-gradient(90deg, #c9a84c, #e2c068) !important;
-}
-[data-testid="stSlider"] input[type="range"]::-webkit-slider-thumb {
-    background: #c9a84c !important;
-    width: 22px !important;
-    height: 22px !important;
-    border: 2px solid #fff !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4) !important;
 }
 
 /* --- チャット入力欄 --- */
 div[data-testid="stChatInput"] {
     border-radius: 16px !important;
-    border: 1.5px solid rgba(201,168,76,0.4) !important;
-    background: rgba(255,255,255,0.05) !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+    border: 1.5px solid rgba(27, 77, 62, 0.4) !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 div[data-testid="stChatInput"]:focus-within {
-    border-color: rgba(201,168,76,0.7) !important;
-    box-shadow: 0 0 0 3px rgba(201,168,76,0.15), 0 4px 16px rgba(0,0,0,0.3) !important;
+    border-color: #1B4D3E !important;
+    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.15) !important;
 }
 div[data-testid="stChatInput"] textarea {
-    color: #f0e8d8 !important;
+    color: #1a1a1a !important;
     font-size: 1rem !important;
 }
 div[data-testid="stChatInput"] textarea::placeholder {
-    color: rgba(200,200,180,0.5) !important;
+    color: #7a9e84 !important;
 }
 
-/* --- チャットメッセージ（ユーザー） --- */
-[data-testid="stChatMessage"][data-type="human"] {
-    background: rgba(201,168,76,0.12) !important;
-    border-radius: 16px 16px 4px 16px !important;
-    border: 1px solid rgba(201,168,76,0.2) !important;
-    padding: 0.8rem 1rem !important;
-    margin: 0.5rem 0 !important;
+/* --- チャットメッセージ --- */
+[data-testid="stChatMessage"] {
+    padding: 0.6rem 0.75rem !important;
+    gap: 0.5rem !important;
 }
-
-/* --- チャットメッセージ（AI） --- */
-[data-testid="stChatMessage"][data-type="ai"] {
-    background: rgba(255,255,255,0.04) !important;
-    border-radius: 4px 16px 16px 16px !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    padding: 0.8rem 1rem !important;
-    margin: 0.5rem 0 !important;
-}
-
-/* --- キャプション・補足テキスト --- */
-.stCaption, [data-testid="stCaption"] {
-    color: #8fa888 !important;
-    font-size: 0.85rem !important;
-    line-height: 1.6 !important;
-}
-
-/* --- 区切り線 --- */
-hr {
-    border-color: rgba(255,255,255,0.1) !important;
-    margin: 1.5rem 0 !important;
+[data-testid="stChatMessage"] p {
+    color: #1a1a1a !important;
+    line-height: 1.75 !important;
 }
 
 /* ==================================
    スマホ向けレイアウト調整 (max-width: 768px)
    ================================== */
 @media (max-width: 768px) {
-
-    /* ── ブロックの余白を詰める ── */
     .block-container {
         padding-left: 0.85rem !important;
         padding-right: 0.85rem !important;
         padding-top: 1.5rem !important;
-        padding-bottom: 5rem !important; /* チャット入力欄の下に余白 */
+        padding-bottom: 5rem !important;
     }
-
-    /* ── タイトル ── */
     h1 {
         font-size: 1.65rem !important;
         line-height: 1.35 !important;
@@ -201,31 +183,22 @@ hr {
     h2 { font-size: 1.25rem !important; }
     h3 { font-size: 1.05rem !important; }
 
-    /* ── キャプション ── */
     .stCaption, [data-testid="stCaption"] {
         font-size: 0.82rem !important;
     }
-
-    /* ── プロフィールカードの余白 ── */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         padding: 1rem 0.85rem !important;
         border-radius: 14px !important;
     }
-
-    /* ── ボタン：全幅・タップしやすい高さ ── */
     button[kind="primary"] {
         min-height: 56px !important;
         font-size: 1.05rem !important;
         border-radius: 14px !important;
     }
-
-    /* ── スライダーのつまみを大きく ── */
-    [data-testid="stSlider"] input[type="range"]::-webkit-slider-thumb {
+    [data-testid="stSlider"] [role="slider"] {
         width: 26px !important;
         height: 26px !important;
     }
-
-    /* ── チャットメッセージの見出し ── */
     [data-testid="stChatMessage"] h1 {
         font-size: 1.15rem !important;
         margin-top: 0.9rem !important;
@@ -245,20 +218,13 @@ hr {
         font-size: 0.95rem !important;
         line-height: 1.75 !important;
     }
-
-    /* ── チャット入力欄：スマホキーボードと干渉しないよう固定 ── */
     div[data-testid="stChatInput"] {
         border-radius: 14px !important;
     }
     div[data-testid="stChatInput"] textarea {
-        font-size: 1rem !important;
         min-height: 48px !important;
     }
-
-    /* ── メッセージバブルの余白を最適化 ── */
     [data-testid="stChatMessage"] {
-        padding: 0.6rem 0.75rem !important;
-        gap: 0.5rem !important;
         margin: 0.4rem 0 !important;
     }
 }
