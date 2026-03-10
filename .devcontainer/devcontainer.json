@@ -1,33 +1,457 @@
-{
-  "name": "Python 3",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
-  "customizations": {
-    "codespaces": {
-      "openFiles": [
-        "README.md",
-        "app.py"
-      ]
-    },
-    "vscode": {
-      "settings": {},
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance"
-      ]
-    }
-  },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
-  "postAttachCommand": {
-    "server": "streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false"
-  },
-  "portsAttributes": {
-    "8501": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
-  },
-  "forwardPorts": [
-    8501
-  ]
+import streamlit as st
+import google.generativeai as genai
+import os
+import datetime
+
+# ==========================================
+# 0. カスタムCSSの注入（スマホ用デザイン最適化）
+# ==========================================
+st.markdown("""
+<style>
+/* ==================================
+   プレミアム・ゴルフデザイン v2 (Dark Green × Cream)
+   ================================== */
+
+/* --- アプリ全体の背景（深みのある落ち着いたダークグリーン） --- */
+.stApp {
+    background: linear-gradient(160deg, #0f2718 0%, #1a3d25 60%, #0d1f12 100%) !important;
 }
+
+/* --- 全体フォントと文字色 --- */
+html, body, [class*="css"] {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    color: #e8e0d0 !important;
+}
+
+/* --- タイトル・見出し --- */
+h1, h2, h3 {
+    color: #f5edd8 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* --- サイドバー背景 --- */
+[data-testid="stSidebar"] {
+    background: rgba(10, 30, 15, 0.95) !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+}
+[data-testid="stSidebar"] * {
+    color: #c8d8b8 !important;
+}
+
+/* --- メインボタン（ゴールド×ダークグリーン） --- */
+button[kind="primary"] {
+    background: linear-gradient(135deg, #c9a84c 0%, #e2c068 100%) !important;
+    color: #1a2e0e !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.35) !important;
+    transition: all 0.25s ease !important;
+    font-weight: 800 !important;
+    font-size: 1rem !important;
+    letter-spacing: 0.01em !important;
+    /* スマホでタップしやすい高さ */
+    min-height: 52px !important;
+    padding: 0.85rem 1.2rem !important;
+}
+button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #e2c068 0%, #f0d080 100%) !important;
+    box-shadow: 0 6px 20px rgba(201,168,76,0.5) !important;
+    transform: translateY(-2px) !important;
+}
+button[kind="primary"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(201,168,76,0.3) !important;
+}
+
+/* --- セカンダリボタン（サイドバー用） --- */
+button[kind="secondary"] {
+    background: rgba(255,255,255,0.08) !important;
+    color: #c8d8b8 !important;
+    border: 1px solid rgba(200, 216, 184, 0.3) !important;
+    border-radius: 10px !important;
+    min-height: 44px !important;
+    transition: all 0.2s ease !important;
+}
+button[kind="secondary"]:hover {
+    background: rgba(255,255,255,0.14) !important;
+    border-color: rgba(200, 216, 184, 0.6) !important;
+}
+
+/* --- プロフィール設定カード --- */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(201,168,76,0.25) !important;
+    box-shadow:
+        0 8px 32px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.07) !important;
+    padding: 1.25rem 1.1rem !important;
+    margin-bottom: 1.5rem !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+/* --- ラベル文字色 --- */
+label, .stSelectbox label, .stSlider label, .stTextArea label {
+    color: #b8ccaa !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+}
+
+/* --- セレクトボックス・テキストエリアの入力欄 --- */
+[data-testid="stSelectbox"] > div > div,
+.stTextArea textarea {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 10px !important;
+    color: #f0e8d8 !important;
+    font-size: 0.95rem !important;
+    min-height: 44px !important;
+}
+.stTextArea textarea:focus,
+[data-testid="stSelectbox"] > div > div:focus-within {
+    border-color: rgba(201,168,76,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.2) !important;
+}
+.stTextArea textarea::placeholder {
+    color: rgba(200,200,180,0.45) !important;
+}
+
+/* --- スライダー --- */
+[data-testid="stSlider"] .stSlider > div > div > div > div {
+    background: linear-gradient(90deg, #c9a84c, #e2c068) !important;
+}
+[data-testid="stSlider"] input[type="range"]::-webkit-slider-thumb {
+    background: #c9a84c !important;
+    width: 22px !important;
+    height: 22px !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4) !important;
+}
+
+/* --- チャット入力欄 --- */
+div[data-testid="stChatInput"] {
+    border-radius: 16px !important;
+    border: 1.5px solid rgba(201,168,76,0.4) !important;
+    background: rgba(255,255,255,0.05) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+}
+div[data-testid="stChatInput"]:focus-within {
+    border-color: rgba(201,168,76,0.7) !important;
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.15), 0 4px 16px rgba(0,0,0,0.3) !important;
+}
+div[data-testid="stChatInput"] textarea {
+    color: #f0e8d8 !important;
+    font-size: 1rem !important;
+}
+div[data-testid="stChatInput"] textarea::placeholder {
+    color: rgba(200,200,180,0.5) !important;
+}
+
+/* --- チャットメッセージ（ユーザー） --- */
+[data-testid="stChatMessage"][data-type="human"] {
+    background: rgba(201,168,76,0.12) !important;
+    border-radius: 16px 16px 4px 16px !important;
+    border: 1px solid rgba(201,168,76,0.2) !important;
+    padding: 0.8rem 1rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* --- チャットメッセージ（AI） --- */
+[data-testid="stChatMessage"][data-type="ai"] {
+    background: rgba(255,255,255,0.04) !important;
+    border-radius: 4px 16px 16px 16px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 0.8rem 1rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* --- キャプション・補足テキスト --- */
+.stCaption, [data-testid="stCaption"] {
+    color: #8fa888 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+}
+
+/* --- 区切り線 --- */
+hr {
+    border-color: rgba(255,255,255,0.1) !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ==================================
+   スマホ向けレイアウト調整 (max-width: 768px)
+   ================================== */
+@media (max-width: 768px) {
+
+    /* ── ブロックの余白を詰める ── */
+    .block-container {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 5rem !important; /* チャット入力欄の下に余白 */
+    }
+
+    /* ── タイトル ── */
+    h1 {
+        font-size: 1.65rem !important;
+        line-height: 1.35 !important;
+    }
+    h2 { font-size: 1.25rem !important; }
+    h3 { font-size: 1.05rem !important; }
+
+    /* ── キャプション ── */
+    .stCaption, [data-testid="stCaption"] {
+        font-size: 0.82rem !important;
+    }
+
+    /* ── プロフィールカードの余白 ── */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        padding: 1rem 0.85rem !important;
+        border-radius: 14px !important;
+    }
+
+    /* ── ボタン：全幅・タップしやすい高さ ── */
+    button[kind="primary"] {
+        min-height: 56px !important;
+        font-size: 1.05rem !important;
+        border-radius: 14px !important;
+    }
+
+    /* ── スライダーのつまみを大きく ── */
+    [data-testid="stSlider"] input[type="range"]::-webkit-slider-thumb {
+        width: 26px !important;
+        height: 26px !important;
+    }
+
+    /* ── チャットメッセージの見出し ── */
+    [data-testid="stChatMessage"] h1 {
+        font-size: 1.15rem !important;
+        margin-top: 0.9rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+    [data-testid="stChatMessage"] h2 {
+        font-size: 1.05rem !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    [data-testid="stChatMessage"] h3 {
+        font-size: 0.95rem !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+    [data-testid="stChatMessage"] p {
+        font-size: 0.95rem !important;
+        line-height: 1.75 !important;
+    }
+
+    /* ── チャット入力欄：スマホキーボードと干渉しないよう固定 ── */
+    div[data-testid="stChatInput"] {
+        border-radius: 14px !important;
+    }
+    div[data-testid="stChatInput"] textarea {
+        font-size: 1rem !important;
+        min-height: 48px !important;
+    }
+
+    /* ── メッセージバブルの余白を最適化 ── */
+    [data-testid="stChatMessage"] {
+        padding: 0.6rem 0.75rem !important;
+        gap: 0.5rem !important;
+        margin: 0.4rem 0 !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ページ設定
+st.set_page_config(page_title="コースマネージメント・コンシェルジュ", page_icon="⛳️")
+
+# タイトルと説明
+st.markdown("<h1 style='font-size: 2.2rem; line-height: 1.3;'>コースマネージメント<br>コンシェルジュ</h1>", unsafe_allow_html=True)
+st.caption("PGAツアーのデータに基づいた、論理的なコース攻略アドバイスをお届けします。")
+
+# 最終更新日時の取得と表示（右寄せの小さなテキスト）
+last_modified_time = os.path.getmtime(__file__)
+dt_m = datetime.datetime.fromtimestamp(last_modified_time)
+updated_str = dt_m.strftime("%Y.%m.%d %H:%M")
+st.markdown(f"<p style='text-align: right; color: #5a7a50; font-size: 0.78rem; margin-top: -10px;'>System Last Updated: {updated_str}</p>", unsafe_allow_html=True)
+
+# ==========================================
+# 1. APIキーの設定 (Streamlit CloudのSecretsから取得)
+# ==========================================
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("⚠️ APIキーが設定されていません。StreamlitのSettings > Secrets に 'GEMINI_API_KEY' を設定してください。")
+    st.stop()
+
+# セッション状態の初期化
+if "profile_setup_complete" not in st.session_state:
+    st.session_state.profile_setup_complete = False
+
+# ==========================================
+# 1.5 プロフィール設定画面（初回のみ表示）
+# ==========================================
+if not st.session_state.profile_setup_complete:
+    st.markdown("### 📋 まずはあなたの現状を教えてください")
+    st.caption("設定したプロフィールはAIに記憶され、あなた専用の最適なアドバイスの基準となります。")
+
+    with st.container(border=True):
+        target_score = st.selectbox(
+            "【目標スコア（基準となる戦略）】",
+            ["100切り（ボギーペース＋α）", "90切り（ボギーペース死守）", "80切り（全ホールパー狙い・ボギー枠8つ）"]
+        )
+        driver_dist = st.slider(
+            "【ドライバーの平均飛距離（※最大飛距離ではなく）】",
+            min_value=150, max_value=300, value=220, step=5, format="%d yd"
+        )
+        iron_dist = st.slider(
+            "【アイアン（7I）の平均飛距離】",
+            min_value=100, max_value=200, value=140, step=5, format="%d yd"
+        )
+        shot_shape = st.selectbox(
+            "【持ち球（ディスパーションの傾向）】",
+            ["スライス系（右へのミスが多い）", "フック系（左へのミスが多い）", "ストレート系"]
+        )
+        weakness = st.text_area(
+            "【絶対に避けたい苦手なこと（オプション）】",
+            placeholder="例：アゴの高いバンカー、左足下がり、池越え など",
+            height=80
+        )
+
+        if st.button("⛳️ この設定でコンシェルジュに相談を始める", type="primary", use_container_width=True):
+            st.session_state.user_profile_text = f"""
+## 現在のユーザーのプロフィール情報
+以下の情報を【大前提】として、アドバイスを組み立ててください。
+- 目標スコア: {target_score}
+- ドライバー平均飛距離: {driver_dist}ヤード
+- 7アイアン平均飛距離: {iron_dist}ヤード
+- 持ち球の傾向: {shot_shape}
+- 苦手な状況・避けたいこと: {weakness if weakness else "特になし"}
+"""
+            st.session_state.profile_setup_complete = True
+            st.rerun()
+
+# ==========================================
+# 2. メインチャット画面（設定完了後に表示）
+# ==========================================
+else:
+    # --- サイドバーに「設定を変更する」ボタンを配置 ---
+    st.sidebar.markdown("### 👤 現在のプロフィール設定")
+    st.sidebar.caption("※設定した条件を元にアドバイスを行っています。")
+    if st.sidebar.button("⚙️ プロフィールを再設定する"):
+        st.session_state.profile_setup_complete = False
+        st.rerun()
+
+    # システムプロンプトの設定
+    BASE_SYSTEM_PROMPT = """
+あなたはゴルフの「コースマネージメント・コンシェルジュ」です。
+ユーザーから提供された資料と、統計データ（PGA/NCAA等の客観的数値）に基づき、論理的かつ具体的なコースマネージメントのアドバイスを行います。
+{profile_injection}
+## 絶対原則
+- 憶測禁止: 提供された資料に記載されていない内容については、絶対に自分の知識や憶測で答えないでください。
+- 回答拒否: 資料から判断できない質問に対しては、必ず「私では答えられません」と出力してください。
+- 事実重視: 統計データを優先し、通説（「上りを残せ」等）に惑わされず論理的に回答してください。
+- パーソナライズ必須: ユーザーから質問された際、すぐに一般的な回答をするのではなく、より具体的でパーソナライズされたアドバイスをするために、必ず「状況」や「ユーザーの腕前」を確認する逆質問を先に行ってください。
+  - 例1: 残り距離からの攻め方を相談された場合、「残り〇〇ヤードに対して普段何番のクラブを使っているか」「その番手は思いっきりフルスイング（マン振り）しての距離か、それとも余裕を持ったコントロールショットの距離か」を必ず質問してください。（「残り200ヤードに対して7番で何ヤード飛びますか？」のような非論理的な逆質問は絶対にしないでください）
+  - 例2: Par5の攻め方を聞かれたら、「そのホールの総距離」「ユーザーのドライバーの平均飛距離」「得意なクラブ」などをまず質問し、回答を得てから具体的な戦略を提示してください。
+- 論理的整合性の徹底（矛盾の禁止）: 全体を通してロジックが破綻しないようにしてください。例えば「80切りレベルだから基準スコアはパーです」と言いながら、理由なく「ここはボギー狙いで良いです」と結論づけると矛盾します。もしリスクを回避してボギーを受け入れる提案をする場合は、「80切りで使える『8つのボギー枠』の1つを、この難しい状況で戦略的に使う」という文脈で必ず筋を通してください。
+- 専門用語の排除（「マイパー」「BN」等禁止）: ゴルフの専門用語や独自の略語（マイパー、BNなど）は使わないでください。「あなたのマイパーはボギーです」ではなく「目指すべきパー3でのスコアはボギーです」のように、「150ヤードなのでBNは7.5ヤードです」ではなく「150ヤードなので半径約7.5ヤードの円を許容範囲として」のように、自然かつ具体的な言葉で伝えてください。
+- 装飾禁止（超重要）: 回答の文章中における「**」（アスタリスク2つによる太字）の使用を一切禁じます。見出しには「#」や「-」などを使っても構いませんが、強調のためのMarkdown太字（**〇〇**）は絶対に出力せず、完全にプレーンなテキストで回答してください。
+## 知識ベース（以下の内容を根拠に回答してください）
+### 1. 目標レベル別「基準スコア」戦略（※ユーザーへの回答時に「マイパー」と呼ばないこと）
+- 100切りレベル: 基準スコア=Wボギー。目標98。Par5は最難関。
+- 90切りレベル: 基準スコア=ボギー。目標88。Par3をパーチャンスと捉えダボを回避。
+- 80切りレベル: 基準スコア=パー。目標78（ハーフ1バーディー想定）。持ち球（ドロー/フェード）でボギー枠を配分。
+### 2. コースマネジメント要諦（重要数字）
+- ブレ幅: 7番アイアンで左右34y、1Wで左右70yのブレはプロでもある。
+- リスク: 林の中からのボギー率は8割。ダボ(-1.2打)はボギー(-0.2打)の6倍のミス。
+- パット: 1.5mの下りの方が、2.1mの上りより入る確率が高い（「長い上りを残せ」は間違い）。
+- 精度基準とターゲット: 残り距離の5%を安全な「ターゲット半径」として設定します。「100ヤードで5ヤードの精度」と考えると難しく感じますが、これは『ピンから半径5ヤード（左右に約5歩ずつ）の大きな円という許容範囲の中に落ちれば大成功』という意味です。ピンという「点」を狙うのではなく、「このグリーンの右半分」や「あのバンカーより左側」といった、許容範囲を満たした大きな『面』をターゲットにして気楽に構えるようアドバイスしてください。
+- ティーショット: 飛距離は正義。3Wより飛距離の出る1Wを打つ方が平均打数が良くなる傾向がある。したがって、Par4やPar5のティーショットでは（極端に狭いなどの特殊なレイアウトではない限り）基本的に1W（またはそれに準ずる最も飛距離の出るクラブ）を持つことを前提にアドバイスを組み立ててください。ティーショットからユーティリティで刻むような非現実的なアドバイスは禁止です。
+## 回答スタイル
+- 冷静、沈着、かつ親切なコンシェルジュとして振る舞う。
+- 相手を呼ぶ際は「ユーザー様」ではなく「あなた」を使用してください。
+- ユーザーのスコア分析時は、どの「基準スコア戦略」から外れたかを具体的に指摘する。
+### 3. よくある質問と回答の型（ケーススタディ）
+- Q. 「練習場ではナイスショットが出るのに、コースでは全く当たらずスコアが崩れます」
+  - A. 練習場の人工芝とコースの違いを指摘し、ベースにする飛距離は「過去最高の最大飛距離」ではなく「最も多い平均的なキャリー」であることを説明してください。コースでは常にばらつき（ディスパーション）が起こることを前提に、ピンという「点」ではなく安全な「面」を狙うよう指導してください。
+- Q. 「ドライバーがスライス（フック）して必ずOBになります。でも同伴者の手前、ドライバーを持たないのは恥ずかしいです」
+  - A. 飛距離へのエゴと同調圧力を捨て、OBの数学的ダメージ（＋2打）の大きさを冷徹に伝えてください。確実な方向性を担保できるなら、短く持つ、スイング幅を抑える、あるいは得意なアイアンやウッドで刻む選択が「最も知的で正しい戦略」であることを肯定し、メンタルブロックを外してあげてください。また、危険なゾーンを避けるティーグラウンドの立つ位置の工夫もアドバイスしてください。
+- Q. 「残り150ヤードからいつもグリーンを外してダボになります。アイアンの精度を上げるには？」
+  - A. 技術論には触れず「ターゲットの設定方法」の問題であると指摘してください。アマチュアの精度を考慮すると、ピン位置に関わらず「常にグリーンのセンターを狙い続けること」が最もスコアを崩さない選択肢であることを説明します。さらに、「ミスしても致命傷にならない安全な場所（フェイルセーフ）」を事前に想定し逆算する思考法を授けてください。
+- Q. 「どうしても林や深いラフに行くと、少しでもグリーンに近づけようと無理をしてドツボにハマってしまいます」
+  - A. 「ミスをしたらその時点で1打罰を受け入れる（1打払う）」というメンタルセットを共有してください。斜面や林の中から一発逆転を狙う姿勢を明確に否定し、得意クラブ（7番アイアン等）で最も安全に「出すだけ（置き換え）」の選択をすることが、結果的に「致命傷（ダボ以上）」を避ける最善の策であることを伝えてください。
+- Q. 「アプローチやパターの距離感が全く合わず、いつもショートしたりオーバーしたりします。感覚を養うにはどうすればいいですか？」
+  - A. 距離感を「自分の感覚（フィーリング）」だけで解決しようとする姿勢を否定してください。感覚はコースや状況によって必ず嘘をつきます。インパクトで緩めて距離を合わせにいくのではなく、「振り幅」や「クラブの選択」といった事前に準備された事実（仕組み）に依存し、あとは物理法則（遠心力）に任せて「しっかり振り抜く（加速させる）」ことで距離のブレが少なくなる（確率が上がる）ことを説明してください。
+- Q. 「今日は100%の力で振っても届かない距離が残りました。どうやって飛ばせばいいですか？」
+  - A. 「フルスイング＝100%の力（マン振り）」という誤解を解いてください。100%の力で振ることは「バクチ」であり、脳のリソースを使い切ってエラーを起こします。ゴルフにおける最大の飛距離と安定感は、「8割の力感」で構え（アドレス）、すべての身体の連動（フルコース）を使った時にのみ生まれることを物理的観点から伝え、届かない場合は番手を上げるか、潔く手前に刻んでアプローチ勝負に切り替えるよう指導してください。
+## 詳細資料
+【100切り】
+- Par 3: チャンスホール。全部ボギー狙い。
+- Par 4: 10ホール中6ホールでボギー、4ホールダボ。
+- Par 5: 全部ダブルボギーでOK。無理しない。
+- 3ホール予算: +5まで
+【90切り】
+- Par 3: 4ホール中2ホールでパー。残り2ホールはボギーでOK。
+- Par 4: 全部ボギー。パーが出たら「ボーナス」。
+- Par 5: 全部ボギー。ダボを出さないことが最優先。
+- 3ホール予算: +3まで
+【80切り】
+- 使えるボギー枠: 8ホール
+- Par 3: 全ホールパー狙い
+- Par 4: 攻守の見極めが試される
+- Par 5: 絶対にバーディーを獲りたい
+- 3ホール予算: +1まで（バーディーで相殺）
+- 持ち球（ドロー/フェード）でボギー枠を配分。
+"""
+
+    FINAL_SYSTEM_PROMPT = BASE_SYSTEM_PROMPT.replace("{profile_injection}", st.session_state.user_profile_text)
+
+    # ==========================================
+    # 3. モデルの初期化
+    # ==========================================
+    model = genai.GenerativeModel(
+        model_name="gemini-2.5-flash",
+        system_instruction=FINAL_SYSTEM_PROMPT
+    )
+
+    if "chat_session" not in st.session_state:
+        st.session_state.chat_session = model.start_chat(history=[])
+    else:
+        st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # ==========================================
+    # 4. UIの描画と会話ロジック
+    # ==========================================
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    if prompt := st.chat_input("例：Par5の攻め方はどうすればいいですか？"):
+
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+
+            try:
+                response = st.session_state.chat_session.send_message(prompt, stream=True)
+
+                full_response = ""
+                for chunk in response:
+                    full_response += chunk.text
+                    message_placeholder.markdown(full_response + "▌")
+
+                message_placeholder.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+            except Exception as e:
+                st.error(f"エラーが発生しました: {e}")
