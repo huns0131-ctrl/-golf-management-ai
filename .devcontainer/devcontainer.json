@@ -9,30 +9,37 @@ import datetime
 st.markdown("""
 <style>
 /* ==================================
-   ゴルフアプリ デザイン（RIZAPゴルフ配色：白×深緑×ゴールド）
+   ゴルフアプリ デザイン（Gold × Black 高級テーマ）
+   カラーパレット:
+     背景    : #111111（ほぼ黒）
+     カード  : #1c1c1c（濃いグレー）
+     ゴールド: #CAAD4F（メインアクセント）
+     薄金    : #f0d878（ホバー・強調）
+     テキスト: #f0e8cc（クリームホワイト）
+     補足文字: #a09060（くすんだゴールド）
    ================================== */
 
-/* --- アプリ全体の背景（白ベース・清潔感） --- */
+/* --- 背景（深い黒） --- */
 .stApp {
-    background: #f8f8f8 !important;
+    background: #111111 !important;
 }
 
-/* --- 全体フォント・文字色（黒で最高視認性） --- */
+/* --- 全体フォント・文字色 --- */
 html, body, [class*="css"] {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-    color: #212121 !important;
+    color: #f0e8cc !important;
 }
 
 /* --- タイトル・見出し --- */
 h1, h2, h3 {
-    color: #212121 !important;
+    color: #CAAD4F !important;
     font-weight: 700 !important;
-    letter-spacing: -0.02em !important;
+    letter-spacing: -0.01em !important;
 }
 
 /* --- キャプション・補足テキスト --- */
 .stCaption, [data-testid="stCaption"], small {
-    color: #666666 !important;
+    color: #a09060 !important;
     font-size: 0.85rem !important;
     line-height: 1.6 !important;
 }
@@ -43,109 +50,115 @@ label,
 .stSlider label,
 .stTextArea label,
 p {
-    color: #212121 !important;
+    color: #f0e8cc !important;
     font-size: 0.92rem !important;
     font-weight: 600 !important;
 }
 
-/* --- セレクトボックスの内部テキスト --- */
+/* --- セレクトボックス --- */
 [data-testid="stSelectbox"] > div > div {
-    background: #ffffff !important;
-    border: 1px solid #d8d8d8 !important;
+    background: #1c1c1c !important;
+    border: 1px solid #3a3020 !important;
     border-radius: 8px !important;
-    color: #212121 !important;
+    color: #f0e8cc !important;
     font-size: 0.95rem !important;
     min-height: 44px !important;
 }
 [data-testid="stSelectbox"] > div > div:focus-within {
-    border-color: #438419 !important;
-    box-shadow: 0 0 0 2px rgba(67, 132, 25, 0.15) !important;
+    border-color: #CAAD4F !important;
+    box-shadow: 0 0 0 2px rgba(202, 173, 79, 0.2) !important;
 }
 
 /* --- テキストエリア --- */
 .stTextArea textarea {
-    background: #ffffff !important;
-    border: 1px solid #d8d8d8 !important;
+    background: #1c1c1c !important;
+    border: 1px solid #3a3020 !important;
     border-radius: 8px !important;
-    color: #212121 !important;
+    color: #f0e8cc !important;
     font-size: 0.95rem !important;
 }
 .stTextArea textarea::placeholder {
-    color: #999999 !important;
+    color: #6b5c38 !important;
 }
 .stTextArea textarea:focus {
-    border-color: #438419 !important;
-    box-shadow: 0 0 0 2px rgba(67, 132, 25, 0.15) !important;
+    border-color: #CAAD4F !important;
+    box-shadow: 0 0 0 2px rgba(202, 173, 79, 0.2) !important;
 }
 
-/* --- スライダー：深緑に変更 --- */
+/* --- スライダー --- */
 [data-testid="stSlider"] [role="slider"] {
-    background: #438419 !important;
-    border: 2px solid #ffffff !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
-    width: 20px !important;
-    height: 20px !important;
+    background: #CAAD4F !important;
+    border: 2px solid #111111 !important;
+    box-shadow: 0 2px 8px rgba(202, 173, 79, 0.4) !important;
+    width: 22px !important;
+    height: 22px !important;
 }
 /* スライダーの値表示テキスト */
 [data-testid="stSlider"] * {
-    color: #212121 !important;
+    color: #CAAD4F !important;
 }
 /* スライダーバーの塗り済み部分 */
 [data-testid="stSlider"] > div > div > div > div:first-child {
-    background: #438419 !important;
+    background: linear-gradient(90deg, #8a7030, #CAAD4F) !important;
 }
 
-/* --- メインボタン（深緑×ゴールド文字） --- */
+/* --- メインボタン（ゴールドグラデーション×黒文字） --- */
 button[kind="primary"] {
-    background-color: #438419 !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, #b89a38 0%, #CAAD4F 50%, #e0c860 100%) !important;
+    color: #111111 !important;
     border-radius: 8px !important;
     border: none !important;
-    box-shadow: 0 4px 12px rgba(67, 132, 25, 0.3) !important;
+    box-shadow: 0 4px 16px rgba(202, 173, 79, 0.4) !important;
     transition: all 0.25s ease !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-size: 1rem !important;
     min-height: 52px !important;
     padding: 0.85rem 1.2rem !important;
+    letter-spacing: 0.02em !important;
 }
 button[kind="primary"]:hover {
-    background-color: #38761f !important;
-    box-shadow: 0 6px 18px rgba(67, 132, 25, 0.4) !important;
+    background: linear-gradient(135deg, #CAAD4F 0%, #f0d878 100%) !important;
+    box-shadow: 0 6px 22px rgba(202, 173, 79, 0.55) !important;
     transform: translateY(-2px) !important;
 }
 button[kind="primary"]:active {
     transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(202, 173, 79, 0.3) !important;
 }
 
 /* --- セカンダリボタン（サイドバー用） --- */
 button[kind="secondary"] {
-    background: #ffffff !important;
-    color: #438419 !important;
-    border: 1.5px solid #438419 !important;
+    background: transparent !important;
+    color: #CAAD4F !important;
+    border: 1.5px solid #CAAD4F !important;
     border-radius: 8px !important;
     min-height: 44px !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
 }
 button[kind="secondary"]:hover {
-    background: #f0f7ec !important;
+    background: rgba(202, 173, 79, 0.1) !important;
+    border-color: #f0d878 !important;
+    color: #f0d878 !important;
 }
 
 /* --- サイドバー --- */
 [data-testid="stSidebar"] {
-    background: #ffffff !important;
-    border-right: 1px solid #e8e8e8 !important;
+    background: #161616 !important;
+    border-right: 1px solid #2a2010 !important;
 }
 [data-testid="stSidebar"] * {
-    color: #212121 !important;
+    color: #c8b870 !important;
 }
 
 /* --- プロフィール設定カード --- */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: #ffffff !important;
+    background: #1c1c1c !important;
     border-radius: 12px !important;
-    border: 1px solid #e8e8e8 !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #3a3020 !important;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(202, 173, 79, 0.08) !important;
     padding: 1.25rem 1.1rem !important;
     margin-bottom: 1.5rem !important;
 }
@@ -153,36 +166,37 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
 /* --- チャット入力欄 --- */
 div[data-testid="stChatInput"] {
     border-radius: 12px !important;
-    border: 1.5px solid #d8d8d8 !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    border: 1.5px solid #3a3020 !important;
+    background: #1c1c1c !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
 }
 div[data-testid="stChatInput"]:focus-within {
-    border-color: #438419 !important;
-    box-shadow: 0 0 0 3px rgba(67, 132, 25, 0.12) !important;
+    border-color: #CAAD4F !important;
+    box-shadow: 0 0 0 3px rgba(202, 173, 79, 0.15), 0 2px 12px rgba(0,0,0,0.4) !important;
 }
 div[data-testid="stChatInput"] textarea {
-    color: #212121 !important;
+    color: #f0e8cc !important;
     font-size: 1rem !important;
+    background: transparent !important;
 }
 div[data-testid="stChatInput"] textarea::placeholder {
-    color: #999999 !important;
+    color: #6b5c38 !important;
 }
 
 /* --- チャットメッセージ（ユーザー） --- */
 [data-testid="stChatMessage"][data-type="human"] {
-    background: #f0f7ec !important;
+    background: rgba(202, 173, 79, 0.08) !important;
     border-radius: 12px 12px 4px 12px !important;
-    border: 1px solid #d6eaca !important;
+    border: 1px solid rgba(202, 173, 79, 0.2) !important;
     padding: 0.8rem 1rem !important;
     margin: 0.5rem 0 !important;
 }
 
 /* --- チャットメッセージ（AI） --- */
 [data-testid="stChatMessage"][data-type="ai"] {
-    background: #ffffff !important;
+    background: #1c1c1c !important;
     border-radius: 4px 12px 12px 12px !important;
-    border: 1px solid #e8e8e8 !important;
+    border: 1px solid #2a2010 !important;
     padding: 0.8rem 1rem !important;
     margin: 0.5rem 0 !important;
 }
@@ -193,13 +207,18 @@ div[data-testid="stChatInput"] textarea::placeholder {
     gap: 0.5rem !important;
 }
 [data-testid="stChatMessage"] p {
-    color: #212121 !important;
+    color: #f0e8cc !important;
     line-height: 1.75 !important;
+}
+[data-testid="stChatMessage"] h1,
+[data-testid="stChatMessage"] h2,
+[data-testid="stChatMessage"] h3 {
+    color: #CAAD4F !important;
 }
 
 /* --- 区切り線 --- */
 hr {
-    border-color: #e8e8e8 !important;
+    border-color: #2a2010 !important;
     margin: 1.5rem 0 !important;
 }
 
