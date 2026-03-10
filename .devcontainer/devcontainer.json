@@ -9,95 +9,99 @@ import datetime
 st.markdown("""
 <style>
 /* ==================================
-   ゴルフアプリ デザイン（薄グリーン背景・視認性重視版）
+   ゴルフアプリ デザイン（RIZAPゴルフ配色：白×深緑×ゴールド）
    ================================== */
 
-/* --- アプリ全体の背景（元のまま） --- */
+/* --- アプリ全体の背景（白ベース・清潔感） --- */
 .stApp {
-    background: linear-gradient(135deg, #ebf5ee 0%, #d1e8d8 100%) !important;
+    background: #f8f8f8 !important;
 }
 
-/* --- 全体フォント・文字色（背景に合わせて濃い黒系に統一） --- */
+/* --- 全体フォント・文字色（黒で最高視認性） --- */
 html, body, [class*="css"] {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-    color: #1a1a1a !important;
+    color: #212121 !important;
 }
 
 /* --- タイトル・見出し --- */
 h1, h2, h3 {
-    color: #0d2b1a !important;
+    color: #212121 !important;
     font-weight: 700 !important;
     letter-spacing: -0.02em !important;
 }
 
 /* --- キャプション・補足テキスト --- */
 .stCaption, [data-testid="stCaption"], small {
-    color: #3d5c46 !important;
+    color: #666666 !important;
     font-size: 0.85rem !important;
     line-height: 1.6 !important;
 }
 
-/* --- フォームラベル文字（黒系で視認性を確保） --- */
+/* --- フォームラベル文字 --- */
 label,
 .stSelectbox label,
 .stSlider label,
 .stTextArea label,
 p {
-    color: #1a1a1a !important;
+    color: #212121 !important;
     font-size: 0.92rem !important;
     font-weight: 600 !important;
 }
 
 /* --- セレクトボックスの内部テキスト --- */
 [data-testid="stSelectbox"] > div > div {
-    background: rgba(255, 255, 255, 0.75) !important;
-    border: 1px solid #a8c9b0 !important;
-    border-radius: 10px !important;
-    color: #1a1a1a !important;
+    background: #ffffff !important;
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 8px !important;
+    color: #212121 !important;
     font-size: 0.95rem !important;
     min-height: 44px !important;
+}
+[data-testid="stSelectbox"] > div > div:focus-within {
+    border-color: #438419 !important;
+    box-shadow: 0 0 0 2px rgba(67, 132, 25, 0.15) !important;
 }
 
 /* --- テキストエリア --- */
 .stTextArea textarea {
-    background: rgba(255, 255, 255, 0.75) !important;
-    border: 1px solid #a8c9b0 !important;
-    border-radius: 10px !important;
-    color: #1a1a1a !important;
+    background: #ffffff !important;
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 8px !important;
+    color: #212121 !important;
     font-size: 0.95rem !important;
 }
 .stTextArea textarea::placeholder {
-    color: #7a9e84 !important;
+    color: #999999 !important;
 }
 .stTextArea textarea:focus {
-    border-color: #1B4D3E !important;
-    box-shadow: 0 0 0 2px rgba(27, 77, 62, 0.15) !important;
+    border-color: #438419 !important;
+    box-shadow: 0 0 0 2px rgba(67, 132, 25, 0.15) !important;
 }
 
-/* --- スライダー：赤をグリーン系に変更 --- */
+/* --- スライダー：深緑に変更 --- */
 [data-testid="stSlider"] [role="slider"] {
-    background: #1B4D3E !important;
+    background: #438419 !important;
     border: 2px solid #ffffff !important;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
     width: 20px !important;
     height: 20px !important;
 }
-/* スライダーの値表示テキスト（赤→濃い緑） */
+/* スライダーの値表示テキスト */
 [data-testid="stSlider"] * {
-    color: #0d2b1a !important;
+    color: #212121 !important;
 }
 /* スライダーバーの塗り済み部分 */
 [data-testid="stSlider"] > div > div > div > div:first-child {
-    background: #1B4D3E !important;
+    background: #438419 !important;
 }
 
-/* --- メインボタン（深いグリーン） --- */
+/* --- メインボタン（深緑×ゴールド文字） --- */
 button[kind="primary"] {
-    background-color: #1B4D3E !important;
+    background-color: #438419 !important;
     color: #ffffff !important;
-    border-radius: 12px !important;
+    border-radius: 8px !important;
     border: none !important;
-    box-shadow: 0 4px 12px rgba(27, 77, 62, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(67, 132, 25, 0.3) !important;
     transition: all 0.25s ease !important;
     font-weight: 700 !important;
     font-size: 1rem !important;
@@ -105,8 +109,8 @@ button[kind="primary"] {
     padding: 0.85rem 1.2rem !important;
 }
 button[kind="primary"]:hover {
-    background-color: #13382D !important;
-    box-shadow: 0 6px 18px rgba(27, 77, 62, 0.4) !important;
+    background-color: #38761f !important;
+    box-shadow: 0 6px 18px rgba(67, 132, 25, 0.4) !important;
     transform: translateY(-2px) !important;
 }
 button[kind="primary"]:active {
@@ -115,55 +119,88 @@ button[kind="primary"]:active {
 
 /* --- セカンダリボタン（サイドバー用） --- */
 button[kind="secondary"] {
-    background: rgba(27, 77, 62, 0.1) !important;
-    color: #0d2b1a !important;
-    border: 1px solid rgba(27, 77, 62, 0.35) !important;
-    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #438419 !important;
+    border: 1.5px solid #438419 !important;
+    border-radius: 8px !important;
     min-height: 44px !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
 }
 button[kind="secondary"]:hover {
-    background: rgba(27, 77, 62, 0.18) !important;
+    background: #f0f7ec !important;
+}
+
+/* --- サイドバー --- */
+[data-testid="stSidebar"] {
+    background: #ffffff !important;
+    border-right: 1px solid #e8e8e8 !important;
+}
+[data-testid="stSidebar"] * {
+    color: #212121 !important;
 }
 
 /* --- プロフィール設定カード --- */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(255, 255, 255, 0.55) !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(27, 77, 62, 0.2) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    border: 1px solid #e8e8e8 !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
     padding: 1.25rem 1.1rem !important;
     margin-bottom: 1.5rem !important;
 }
 
 /* --- チャット入力欄 --- */
 div[data-testid="stChatInput"] {
-    border-radius: 16px !important;
-    border: 1.5px solid rgba(27, 77, 62, 0.4) !important;
-    background: rgba(255, 255, 255, 0.7) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+    border-radius: 12px !important;
+    border: 1.5px solid #d8d8d8 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 div[data-testid="stChatInput"]:focus-within {
-    border-color: #1B4D3E !important;
-    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.15) !important;
+    border-color: #438419 !important;
+    box-shadow: 0 0 0 3px rgba(67, 132, 25, 0.12) !important;
 }
 div[data-testid="stChatInput"] textarea {
-    color: #1a1a1a !important;
+    color: #212121 !important;
     font-size: 1rem !important;
 }
 div[data-testid="stChatInput"] textarea::placeholder {
-    color: #7a9e84 !important;
+    color: #999999 !important;
 }
 
-/* --- チャットメッセージ --- */
+/* --- チャットメッセージ（ユーザー） --- */
+[data-testid="stChatMessage"][data-type="human"] {
+    background: #f0f7ec !important;
+    border-radius: 12px 12px 4px 12px !important;
+    border: 1px solid #d6eaca !important;
+    padding: 0.8rem 1rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* --- チャットメッセージ（AI） --- */
+[data-testid="stChatMessage"][data-type="ai"] {
+    background: #ffffff !important;
+    border-radius: 4px 12px 12px 12px !important;
+    border: 1px solid #e8e8e8 !important;
+    padding: 0.8rem 1rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+/* --- チャットメッセージ本文 --- */
 [data-testid="stChatMessage"] {
     padding: 0.6rem 0.75rem !important;
     gap: 0.5rem !important;
 }
 [data-testid="stChatMessage"] p {
-    color: #1a1a1a !important;
+    color: #212121 !important;
     line-height: 1.75 !important;
+}
+
+/* --- 区切り線 --- */
+hr {
+    border-color: #e8e8e8 !important;
+    margin: 1.5rem 0 !important;
 }
 
 /* ==================================
@@ -188,12 +225,12 @@ div[data-testid="stChatInput"] textarea::placeholder {
     }
     div[data-testid="stVerticalBlockBorderWrapper"] {
         padding: 1rem 0.85rem !important;
-        border-radius: 14px !important;
+        border-radius: 10px !important;
     }
     button[kind="primary"] {
         min-height: 56px !important;
         font-size: 1.05rem !important;
-        border-radius: 14px !important;
+        border-radius: 10px !important;
     }
     [data-testid="stSlider"] [role="slider"] {
         width: 26px !important;
@@ -219,7 +256,7 @@ div[data-testid="stChatInput"] textarea::placeholder {
         line-height: 1.75 !important;
     }
     div[data-testid="stChatInput"] {
-        border-radius: 14px !important;
+        border-radius: 10px !important;
     }
     div[data-testid="stChatInput"] textarea {
         min-height: 48px !important;
